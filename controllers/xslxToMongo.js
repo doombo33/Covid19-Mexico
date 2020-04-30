@@ -51,9 +51,15 @@ var backup = async function (options, name){
     let client = await MongoClient.connect(options.url,{ useUnifiedTopology: true, useNewUrlParser: true });
     let db = client.db(options.db);
     try {
-        var newName = name+d.toISOString().split('T')[0].replace(/-/g,'')
-        console.log('Rotating Collection '+name);
-        const resInsert = await db.collection(name).rename(newName);
+        var collExists = await db.system.namespaces.find( { name: 'covid19Fetch.'+name } );
+        if(collExists){
+            var newName = name+d.toISOString().split('T')[0].replace(/-/g,'')
+            console.log('Rotating Collection '+name);
+            const resInsert = await db.collection(name).rename(newName);
+        }
+        else{
+            console.log('Not Rotating Collection '+name+' it does not exist.');
+        }
     }
     finally {
         client.close();
