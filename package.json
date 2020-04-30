@@ -1,0 +1,26 @@
+{
+  "name": "covid19-fetch",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node app.js",
+    "test": "PORT=8030",
+    "build": "API_TOKEN="
+  },
+  "dependencies": {
+    "dateformat": "*",
+    "express": "^4.15.0",
+    "fs": "*",
+    "github-api": "*",
+    "ip": "*",
+    "mongoose": "^5.9.9",
+    "node-cron": "*",
+    "path": "^0.12.7",
+    "properties": "*",
+    "request": "*",
+    "slack-node": "*",
+    "exceltomongo": "*",
+    "extract-zip": "*",
+    "xlsx": "^0.13.0"
+  }
+}
