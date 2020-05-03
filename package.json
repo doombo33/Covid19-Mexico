@@ -21,6 +21,7 @@
     "slack-node": "*",
     "exceltomongo": "*",
     "extract-zip": "*",
-    "xlsx": "^0.13.0"
+    "xlsx": "^0.13.0",
+    "adm-zip": "*"
   }
 }

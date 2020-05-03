@@ -36,7 +36,7 @@ cron.schedule("*/30 * * * *", function() {
 });
 
 //SSA File processing
-cron.schedule("*/35 * * * *", function() {
+cron.schedule("*/1 * * * *", function() {
     //validate the other file
     var d = new Date();
     console.log("processing SSA covid19 files if needed every 35 minutes");
@@ -58,5 +58,5 @@ cron.schedule("*/40 * * * *", function() {
 var server = app.listen(8030, function () {
     host = server.address().address;
     port = server.address().port;
-    console.log('Example app listening at http://%s:%s', host, port);
+    console.log('Covid19-Fetch app listening at http://%s:%s', host, port);
 });

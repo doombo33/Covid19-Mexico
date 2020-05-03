@@ -3,7 +3,12 @@ var fs = require('fs');
 var path = require('path');
 var mongoose = require('mongoose');
 var fileStatus = mongoose.model('fileStatus');
+var AdmZip = require('adm-zip');
+
 var extract = require('extract-zip');
+
+
+
 var extraxtPath = "./extractedData"
 var xslxToMongo = require('./xslxToMongo').xslxToMongo;
 
@@ -34,26 +39,39 @@ var getFiles = function(){
 
             fileStatus.findOne({'name':fileName}).exec( async function (error, file){
                 if(file){
-                    var extractedFiles = []
-                    const onEntry = function (entry) {
-                        //console.log(entry.fileName);
-                        extractedFiles.push(entry.fileName);
-                    }
+
+                    var extractedFiles = [];
+                    // const onEntry = function (entry) {
+                    //     console.log(entry.fileName);
+                    //     extractedFiles.push(entry.fileName);
+                    // }
                     if(file.status=='downloaded'){
+
                         console.log('Extracting file '+fileName);
+                        var zip = new AdmZip(path.join(__dirname, '../Downloads/')+fileName);
+                        var zipEntries = zip.getEntries();
+
+                        zip.extractAllToAsync(extPath,true, function(err){
+                            if(err)
+                                console.log(err);
+
+                                //console.log(ext);
+                                console.log('Extracted file '+fileName);
+        
+                                //var ext = await extract(path.join(__dirname, '../Downloads/')+fileName, { dir: extPath, onEntry });
+                                
+                                switch(fileName){
+                                    case 'diccionario_datos_covid19.zip':
+                                        //backup data and droip tables...
+                                        processDictionary(zipEntries, fileName);
+                                        break;
+                                    case 'datos_abiertos_covid19.zip':
+                                        //backup data and droip tables...here too??? or only backup...
+                                        processData(zipEntries, fileName);
+                                        break;
+                                }
+                        });
                         
-                        await extract(path.join(__dirname, '../Downloads/')+fileName, { dir: extPath, onEntry });
-                        console.log('Extracted file '+fileName);
-                        switch(fileName){
-                            case 'diccionario_datos_covid19.zip':
-                                //backup data and droip tables...
-                                processDictionary(extractedFiles, fileName);
-                                break;
-                            case 'datos_abiertos_covid19.zip':
-                                //backup data and droip tables...here too??? or only backup...
-                                processData(extractedFiles, fileName);
-                                break;
-                        }
 
                     }
                     //eslse file already processed
@@ -74,12 +92,12 @@ var deleteCatalogues = async function(){
 var processDictionary = function(files, file){
     //mongooDB stuff add new caltalogues...
     
-    console.log('Processing Catalogue Data form Files: '+files);
+    console.log('Processing Catalogue Data form File');
     files.forEach(function (fileName) {
-        if(fileName.includes('Catalogos')){
+        if(fileName.entryName.includes('Catalogos')){
             var index = [{tbl:'Catalogo_RESULTADO',index:'CLAVE'}];
-            var filePath = path.join(extPath, fileName);
-            var options = { url: 'mongodb://localhost', db: 'covid19Fetch', workbook: filePath, fileName: fileName, index:index}
+            var filePath = path.join(extPath, fileName.entryName);
+            var options = { url: 'mongodb://localhost', db: 'covid19Fetch', workbook: filePath, fileName: fileName.name, index:index, rotate: false}
             xslxToMongo(options, function(result){
                 fileStatus.findOne({'name':file}).exec(function (error, dbFile){
                     dbFile.status = 'processed';
@@ -92,11 +110,13 @@ var processDictionary = function(files, file){
         }
     });
 }
+
 var processData = function(files, file){
     console.log('Processing Data form Files: '+files);
     files.forEach(function (fileName) {
-        var filePath = path.join(extPath, fileName);
-        var options = { url: 'mongodb://localhost', db: 'covid19Fetch', workbook: filePath}
+        var filePath = path.join(extPath, fileName.entryName);
+        //add indexes
+        var options = { url: 'mongodb://localhost', db: 'covid19Fetch', workbook: filePath, fileName: fileName.name, rotate: true}
         console.log('calling xslxToMongo')
         xslxToMongo(options, function(result){
                 fileStatus.findOne({'name':file}).exec(function (error, dbFile){

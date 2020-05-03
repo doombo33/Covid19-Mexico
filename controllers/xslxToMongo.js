@@ -19,13 +19,13 @@ function createCoversion(options, callback){
         try {
             //rotate tables...
             for (let i = 0; i < sheet_name_list.length; i++) {
-                
+
                 let records = xlsx.utils.sheet_to_json(workbook.Sheets[sheet_name_list[i]]);
                 if (records.length) {
-                    console.log(records[0])
+                    //console.log(records[0])
                     var name = sheet_name_list[i].replace(/\s/g, '_').replace(/[àáâãäå]/g,"a");
-                    console.log('Inserting '+records.length+ ' records to Collection '+name);
                     const bckup = await backup(options,name);
+                    console.log('Inserting '+records.length+ ' records to Collection '+name);
                     const resCreate = await db.createCollection(name);
                     const resInsert = await db.collection(name).insertMany(records);
                     console.log('Inserted '+records.length+ ' records to Collection '+name);
@@ -40,25 +40,25 @@ function createCoversion(options, callback){
 }
 
 var createIndex = async function (options, index){
-    
+
 }
 
 
 var backup = async function (options, name){
     var d = new Date();
     d.setDate(d.getDate()-1);
-    
+
     let client = await MongoClient.connect(options.url,{ useUnifiedTopology: true, useNewUrlParser: true });
     let db = client.db(options.db);
     try {
-        var collExists = await db.system.namespaces.find( { name: 'covid19Fetch.'+name } );
-        if(collExists){
+        if(options.rotate){
             var newName = name+d.toISOString().split('T')[0].replace(/-/g,'')
             console.log('Rotating Collection '+name);
-            const resInsert = await db.collection(name).rename(newName);
+            const resRename = await db.collection(name).rename(newName);
         }
         else{
-            console.log('Not Rotating Collection '+name+' it does not exist.');
+            console.log('Droppping Collection '+name);
+            const resDrop = await db.collection(name).drop();
         }
     }
     finally {
@@ -67,4 +67,4 @@ var backup = async function (options, name){
     }
 }
 
-module.exports.xslxToMongo = xslxToMongo;
+module.exports.xslxToMongo = xslxToMongo; 
