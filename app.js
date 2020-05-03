@@ -36,7 +36,7 @@ cron.schedule("*/30 * * * *", function() {
 });
 
 //SSA File processing
-cron.schedule("*/1 * * * *", function() {
+cron.schedule("*/35 * * * *", function() {
     //validate the other file
     var d = new Date();
     console.log("processing SSA covid19 files if needed every 35 minutes");
