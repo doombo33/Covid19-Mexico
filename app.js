@@ -46,7 +46,7 @@ cron.schedule("*/35 * * * *", function() {
 
 
 //Unam GeoData download and processing
-cron.schedule("*/1 * * * *", function() {
+cron.schedule("*/40 * * * *", function() {
 
     var fileNames = ['mundb2020','evolucion_nac3'];
     var numRecords = [2465,500];
