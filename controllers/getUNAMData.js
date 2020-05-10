@@ -7,8 +7,8 @@ var ip = require("ip");
 var Schema = mongoose.Schema;
 var maxRecordCount = 0;
 
-var getUNAMData = function(){
-    getDataInfo();
+var getUNAMData = function(url, fileName, amnt){
+    getDataInfo(url, fileName, amnt);
 }
 
 var convertUTCDateToLocalDate = function(date) {
@@ -16,10 +16,11 @@ var convertUTCDateToLocalDate = function(date) {
     return newDate;
 }
 
-var getDataInfo = function(params) {
-    var url = 'https://services8.arcgis.com/7rTEsmPVkVyyRlIk/arcgis/rest/services/mundb2020/FeatureServer/0?f=pjson'
-    var fileName = 'UnamData';
+var getDataInfo = function(url, fileName, amnt) {
 
+    console.log(url);
+    console.log(fileName);
+    console.log(amnt);
     var urls = [];
     //add column list
     var requestAsync = function(url) {
@@ -56,7 +57,9 @@ var getDataInfo = function(params) {
                     console.log('New version found for file: '+fileName);
                     file.lastmodified=lastDate.getTime();
                     file.contentLenght=contentLen;
+                    file.maxRecords=amnt,
                     file.status='downloading';
+
                     getData(file);
                 }
                 else{
@@ -75,7 +78,8 @@ var getDataInfo = function(params) {
                     "hostname": hostname,
                     "ip": host,
                     "type": 'json',
-                    "status": 'downloading' 
+                    "status": 'downloading',
+                    "maxRecords": amnt
                 };
                 console.log('Downloading and Inserting new file: '+fileName);
                 console.log(file);
@@ -86,6 +90,7 @@ var getDataInfo = function(params) {
         });
         
     };
+
     urls.push(url);
     getParallel(callBack);
 }
@@ -112,11 +117,14 @@ var getData = function(file) {
         callBack(data);
     }
 
-    var callBack = function(response) {
-        var d = new Date(file.lastmodified);
-        d = convertUTCDateToLocalDate(d);
-        var tblName = file.name+d.toISOString().split('T')[0].replace(/-/g,'');
-        //console.log(tblName);
+    var callBack = async function(response) {
+
+        var d = new Date();
+        d.setDate(d.getDate()-1);
+
+        var dString = d.getFullYear()+''+('0' + (d.getMonth()+1)).slice(-2)+''+('0' + d.getDate()).slice(-2);
+        //console.log('callback '+dString);
+        var tblName = file.name+'_'+ dString; //d.toISOString().split('T')[0].replace(/-/g,'');
         var allData = new Array();
         var allFields = new Array();
         var oneTime = true;
@@ -125,10 +133,11 @@ var getData = function(file) {
 
             var obj = response[i];
             var data = obj.features;
+            
             //TODO checkit out
             if(oneTime){
                 var fields = obj.fields;
-                
+                console.log('callback fields '+obj.fields);
                 for(k=0;k<fields.length;k++){
                     var field = fields[k];
                     schema[field.name]=field.type=='esriFieldTypeDouble'?'Number':'String'
@@ -140,9 +149,14 @@ var getData = function(file) {
                 allData.push(innerObj);
             }
         }
-        console.log(schema);
+
+        let db = mongoose.connection.db;
+
+        var renm = await db.collection(file.name).rename(tblName);
+        //console.log(renm);
+        //console.log(schema);
         var tblSchema = new Schema(schema);
-        var model = mongoose.model(tblName, tblSchema);
+        var model = mongoose.model(file.name, tblSchema);
         model.insertMany(allData,function(err, docs){
             console.log(docs.length);
             file.status='processed';
@@ -155,7 +169,7 @@ var getData = function(file) {
 
 
     var numRecords = maxRecordCount;
-    var maxRecords = 2465;
+    var maxRecords = file.maxRecords;
     var start = 0;
     var number = maxRecords;
     var array = [];
@@ -165,11 +179,11 @@ var getData = function(file) {
     }
 
     for(i=0;i<array.length;i++) {
-        var option = 'https://services8.arcgis.com/7rTEsmPVkVyyRlIk/arcgis/rest/services/mundb2020/FeatureServer/0/query?where=1%3D1&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&resultType=none&distance=0.0&units=esriSRUnit_Meter&returnGeodetic=false&outFields=*&returnGeometry=false&returnCentroid=false&featureEncoding=esriDefault&multipatchOption=xyFootprint&maxAllowableOffset=&geometryPrecision=&outSR=&datumTransformation=&applyVCSProjection=false&returnIdsOnly=false&returnUniqueIdsOnly=false&returnCountOnly=false&returnExtentOnly=false&returnQueryGeometry=false&returnDistinctValues=false&cacheHint=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&having=&resultOffset='+start+'&resultRecordCount='+numRecords+'&returnZ=false&returnM=false&returnExceededLimitFeatures=true&quantizationParameters=&sqlFormat=none&f=pjson&token=';
+        var option = 'https://services8.arcgis.com/7rTEsmPVkVyyRlIk/arcgis/rest/services/'+file.name+'/FeatureServer/0/query?where=1%3D1&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&resultType=none&distance=0.0&units=esriSRUnit_Meter&returnGeodetic=false&outFields=*&returnGeometry=false&returnCentroid=false&featureEncoding=esriDefault&multipatchOption=xyFootprint&maxAllowableOffset=&geometryPrecision=&outSR=&datumTransformation=&applyVCSProjection=false&returnIdsOnly=false&returnUniqueIdsOnly=false&returnCountOnly=false&returnExtentOnly=false&returnQueryGeometry=false&returnDistinctValues=false&cacheHint=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&having=&resultOffset='+start+'&resultRecordCount='+numRecords+'&returnZ=false&returnM=false&returnExceededLimitFeatures=true&quantizationParameters=&sqlFormat=none&f=pjson&token=';
         urls.push(option);
         start+=numRecords;
     }
-    //console.log(urls);
+    console.log(urls);
     getParallel(callBack);
 }
 

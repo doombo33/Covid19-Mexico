@@ -46,12 +46,17 @@ cron.schedule("*/35 * * * *", function() {
 
 
 //Unam GeoData download and processing
-cron.schedule("*/40 * * * *", function() {
-    //validate the other file
+cron.schedule("*/1 * * * *", function() {
+
+    var fileNames = ['mundb2020','evolucion_nac3'];
+    var numRecords = [2465,500];
+    var url = 'https://services8.arcgis.com/7rTEsmPVkVyyRlIk/arcgis/rest/services/${uri}/FeatureServer/0?f=pjson'
     var d = new Date();
     console.log("processing UNAM GeoData covid19 files if needed every 40 minutes");
     console.log('Starting file processing');
-    getUNAMData();
+    for(i=0;i<fileNames.length;i++) {
+        getUNAMData(url.replace('${uri}',fileNames[i]),fileNames[i],numRecords[i]);
+    }
 });
 
 

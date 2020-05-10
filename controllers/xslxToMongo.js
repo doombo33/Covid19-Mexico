@@ -1,6 +1,8 @@
 let MongoClient = require('mongodb').MongoClient;
 let xlsx = require('xlsx');
 
+var indxFields = [];
+
 var xslxToMongo = function(options, callback){
     //call backup an from there createConversion
     createCoversion(options, callback);
@@ -27,6 +29,7 @@ function createCoversion(options, callback){
                     const bckup = await backup(options,name);
                     console.log('Inserting '+records.length+ ' records to Collection '+name);
                     const resCreate = await db.createCollection(name);
+                    //create index
                     const resInsert = await db.collection(name).insertMany(records);
                     console.log('Inserted '+records.length+ ' records to Collection '+name);
                 }
@@ -46,13 +49,14 @@ var createIndex = async function (options, index){
 
 var backup = async function (options, name){
     var d = new Date();
-    d.setDate(d.getDate()-1);
+    //lets check this out maybe has to be 2 days intead of 1
+    d.setDate(d.getDate()-2);
 
     let client = await MongoClient.connect(options.url,{ useUnifiedTopology: true, useNewUrlParser: true });
     let db = client.db(options.db);
     try {
         if(options.rotate){
-            var newName = name+d.toISOString().split('T')[0].replace(/-/g,'')
+            var newName = name+'_'+d.toISOString().split('T')[0].replace(/-/g,'')
             console.log('Rotating Collection '+name);
             const resRename = await db.collection(name).rename(newName);
         }

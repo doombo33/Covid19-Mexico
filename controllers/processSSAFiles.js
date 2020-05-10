@@ -4,10 +4,7 @@ var path = require('path');
 var mongoose = require('mongoose');
 var fileStatus = mongoose.model('fileStatus');
 var AdmZip = require('adm-zip');
-
-var extract = require('extract-zip');
-
-
+//var extract = require('extract-zip');
 
 var extraxtPath = "./extractedData"
 var xslxToMongo = require('./xslxToMongo').xslxToMongo;
@@ -40,11 +37,6 @@ var getFiles = function(){
             fileStatus.findOne({'name':fileName}).exec( async function (error, file){
                 if(file){
 
-                    var extractedFiles = [];
-                    // const onEntry = function (entry) {
-                    //     console.log(entry.fileName);
-                    //     extractedFiles.push(entry.fileName);
-                    // }
                     if(file.status=='downloaded'){
 
                         console.log('Extracting file '+fileName);
@@ -56,10 +48,7 @@ var getFiles = function(){
                                 console.log(err);
 
                                 //console.log(ext);
-                                console.log('Extracted file '+fileName);
-        
-                                //var ext = await extract(path.join(__dirname, '../Downloads/')+fileName, { dir: extPath, onEntry });
-                                
+                                console.log('Extracted file '+fileName);                                
                                 switch(fileName){
                                     case 'diccionario_datos_covid19.zip':
                                         //backup data and droip tables...
