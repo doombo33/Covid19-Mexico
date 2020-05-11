@@ -154,7 +154,7 @@ var getData = function(file) {
 
         var renm = await db.collection(file.name).rename(tblName);
         console.log('rename '+renm);
-        console.log(schema);
+        //console.log(schema);
         var tblSchema = new Schema(schema);
         var model = mongoose.model(file.name, tblSchema);
         model.insertMany(allData,function(err, docs){
