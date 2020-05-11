@@ -63,6 +63,9 @@ var getFiles = function(){
                         
 
                     }
+                    else{
+                        console.log('File already processed '+fileName);
+                    }
                     //eslse file already processed
                 }
                 else{

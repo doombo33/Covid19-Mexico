@@ -18,9 +18,9 @@ var convertUTCDateToLocalDate = function(date) {
 
 var getDataInfo = function(url, fileName, amnt) {
 
-    console.log(url);
-    console.log(fileName);
-    console.log(amnt);
+    //console.log(url);
+    //console.log(fileName);
+    //console.log(amnt);
     var urls = [];
     //add column list
     var requestAsync = function(url) {
@@ -44,7 +44,7 @@ var getDataInfo = function(url, fileName, amnt) {
     var callBack = function(response) {
         var data = response[0];
         var lastDate = new Date(data.editingInfo.lastEditDate);
-        console.log(lastDate.toLocaleString());
+        //console.log(lastDate.toLocaleString());
         var myDate = convertUTCDateToLocalDate(lastDate); //new Date(lastDate.toLocaleString());
         maxRecordCount = data.maxRecordCount;
         
@@ -137,7 +137,7 @@ var getData = function(file) {
             //TODO checkit out
             if(oneTime){
                 var fields = obj.fields;
-                console.log('callback fields '+obj.fields);
+                //console.log('callback fields '+obj.fields);
                 for(k=0;k<fields.length;k++){
                     var field = fields[k];
                     schema[field.name]=field.type=='esriFieldTypeDouble'?'Number':'String'
@@ -153,12 +153,12 @@ var getData = function(file) {
         let db = mongoose.connection.db;
 
         var renm = await db.collection(file.name).rename(tblName);
-        //console.log(renm);
-        //console.log(schema);
+        console.log('rename '+renm);
+        console.log(schema);
         var tblSchema = new Schema(schema);
         var model = mongoose.model(file.name, tblSchema);
         model.insertMany(allData,function(err, docs){
-            console.log(docs.length);
+            //console.log(docs.length);
             file.status='processed';
             Files.update({ name : file.name }, file, { upsert : true },(err, recordsUpdated) => {
                 console.log("Database updated for file " +file.name);
@@ -183,7 +183,7 @@ var getData = function(file) {
         urls.push(option);
         start+=numRecords;
     }
-    console.log(urls);
+    //console.log(urls);
     getParallel(callBack);
 }
 
