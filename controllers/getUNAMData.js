@@ -152,21 +152,25 @@ var getData = function(file) {
 
         let db = mongoose.connection.db;
 
-        var renm = await db.collection(file.name).rename(tblName);
-        console.log('rename '+renm);
-        //console.log(schema);
-        var tblSchema = new Schema(schema);
-        var model = mongoose.model(file.name, tblSchema);
-        model.insertMany(allData,function(err, docs){
-            //console.log(docs.length);
-            file.status='processed';
-            Files.update({ name : file.name }, file, { upsert : true },(err, recordsUpdated) => {
-                console.log("Database updated for file " +file.name);
+        var renm = db.collection(file.name).rename(tblName, function(error, collection){
+            if(error)
+                console.log(error);
+            console.log('rename '+collection);
+            //console.log(schema);
+            var tblSchema = new Schema(schema);
+            var model = mongoose.model(file.name, tblSchema);
+            model.insertMany(allData,function(err, docs){
+                //console.log(docs.length);
+                file.status='processed';
+                Files.update({ name : file.name }, file, { upsert : true },(err, recordsUpdated) => {
+                    console.log("Database updated for file " +file.name);
+                });
             });
         });
+        
     }
 
-
+    //add error validation on every aweait or a try catch...
 
     var numRecords = maxRecordCount;
     var maxRecords = file.maxRecords;
