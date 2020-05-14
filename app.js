@@ -21,7 +21,7 @@ app.use(function(req, res, next) {
 app.set('port', process.env.PORT || 8030);
 
 //Mexico SSA File Download
-cron.schedule("0 20,21,22 * * *", function() {
+cron.schedule("0 12,20,21,22 * * *", function() {
     //validate the other file
     var url = 'http://187.191.75.115/gobmx/salud/datos_abiertos/${uri}';
     var d = new Date();
@@ -36,7 +36,7 @@ cron.schedule("0 20,21,22 * * *", function() {
 });
 
 //SSA File processing
-cron.schedule("5 20,21,22 * * *", function() {
+cron.schedule("5 12,20,21,22 * * *", function() {
     //validate the other file
     var d = new Date();
     console.log("processing SSA covid19 files if needed every 35 minutes");
@@ -46,7 +46,7 @@ cron.schedule("5 20,21,22 * * *", function() {
 
 
 //Unam GeoData download and processing
-cron.schedule("10 20,21,22 * * *", function() {
+cron.schedule("10 12,20,21,22 * * *", function() {
 
     var fileNames = ['mundb2020','evolucion_nac3'];
     var numRecords = [2465,500];
