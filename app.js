@@ -49,7 +49,7 @@ cron.schedule("5 20,21,22 * * *", function() {
 cron.schedule("10 20,21,22 * * *", function() {
 
     var fileNames = ['mundb2020','evolucion_nac4','evolucion_nac3'];
-    var numRecords = [2465,500];
+    var numRecords = [2465,500,500];
     var url = 'https://services8.arcgis.com/7rTEsmPVkVyyRlIk/arcgis/rest/services/${uri}/FeatureServer/0?f=pjson'
     var d = new Date();
     console.log("processing UNAM GeoData covid19 files if needed every 40 minutes");
