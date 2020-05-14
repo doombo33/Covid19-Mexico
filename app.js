@@ -21,7 +21,7 @@ app.use(function(req, res, next) {
 app.set('port', process.env.PORT || 8030);
 
 //Mexico SSA File Download
-cron.schedule("0 12,20,21,22 * * *", function() {
+cron.schedule("0 20,21,22 * * *", function() {
     //validate the other file
     var url = 'http://187.191.75.115/gobmx/salud/datos_abiertos/${uri}';
     var d = new Date();
@@ -36,7 +36,7 @@ cron.schedule("0 12,20,21,22 * * *", function() {
 });
 
 //SSA File processing
-cron.schedule("5 12,20,21,22 * * *", function() {
+cron.schedule("5 20,21,22 * * *", function() {
     //validate the other file
     var d = new Date();
     console.log("processing SSA covid19 files if needed every 35 minutes");
@@ -46,15 +46,16 @@ cron.schedule("5 12,20,21,22 * * *", function() {
 
 
 //Unam GeoData download and processing
-cron.schedule("10 12,20,21,22 * * *", function() {
+cron.schedule("10 20,21,22 * * *", function() {
 
-    var fileNames = ['mundb2020','evolucion_nac3'];
+    var fileNames = ['mundb2020','evolucion_nac4'];
     var numRecords = [2465,500];
     var url = 'https://services8.arcgis.com/7rTEsmPVkVyyRlIk/arcgis/rest/services/${uri}/FeatureServer/0?f=pjson'
     var d = new Date();
     console.log("processing UNAM GeoData covid19 files if needed every 40 minutes");
     console.log('Starting file processing');
     for(i=0;i<fileNames.length;i++) {
+        //can send the options fomr here...
         getUNAMData(url.replace('${uri}',fileNames[i]),fileNames[i],numRecords[i]);
     }
 });
