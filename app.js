@@ -46,7 +46,7 @@ cron.schedule("5 20,21,22 * * *", function() {
 
 //So i need to add the options rotate for the evolucion_nacX table, so it is always done with the last one, same name and dropping the others...
 //Unam GeoData download and processing
-cron.schedule("30 12,20,21,22 * * *", function() {
+cron.schedule("10 20,21,22 * * *", function() {
 
     var fileNames = ['mundb2020','evolucion_nac4','evolucion_nac3'];
     var numRecords = [2465,500];
