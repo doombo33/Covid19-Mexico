@@ -45,7 +45,7 @@ cron.schedule("5 20,21,22 * * *", function() {
 });
 
 
-cron.schedule("10 20,21,22 * * *", function() {
+cron.schedule("10 20,21,22,23 * * *", function() {
 
     var fileNames = ['mundb2020','evolucion_nac4','evolucion_nac3'];
     var numRecords = [2465,500,500];

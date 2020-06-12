@@ -4,7 +4,13 @@ var path = require('path');
 var mongoose = require('mongoose');
 var fileStatus = mongoose.model('fileStatus');
 var AdmZip = require('adm-zip');
+var executCommand = require('./shellController').executeCommand;
 //var extract = require('extract-zip');
+
+var runCommand = async function(command,params){
+    try {  return await executCommand(command,params);
+    } catch(err) { console.log(err) }
+}
 
 var extraxtPath = "./extractedData"
 var xslxToMongo = require('./xslxToMongo').xslxToMongo;
@@ -56,7 +62,7 @@ var getFiles = function(){
                                         break;
                                     case 'datos_abiertos_covid19.zip':
                                         //backup data and droip tables...here too??? or only backup...
-                                        processData(zipEntries, fileName);
+                                        processBigData(zipEntries, fileName, file);
                                         break;
                                 }
                         });
@@ -119,6 +125,30 @@ var processData = function(files, file){
                     );
                 });
             });
+    });
+}
+
+
+
+
+var processBigData = function(files, file){
+    console.log('Processing Big Data form Files: '+files);
+    files.forEach(async function (fileName) {
+        
+        var filePath = path.join(extPath, fileName.entryName);
+        //add indexes
+        var options = { url: 'mongodb://localhost', db: 'covid19Fetch', workbook: filePath, fileName: fileName.name, rotate: true}
+        var prog = 'sh';
+        var params = ['scripts/rollOutCollections.sh', extPath, options.fileName, options.db, options.rotate];
+        var data = await runCommand(prog,params);
+        console.log(data);
+        fileStatus.findOne({'name':file}).exec(function (error, dbFile){
+            dbFile.status = 'processed';
+            dbFile.save(function(){
+                    console.log('Data Collection Updated');
+                }
+            );
+        });
     });
 }
 
