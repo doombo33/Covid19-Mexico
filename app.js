@@ -8,7 +8,11 @@ var getUNAMData = require('./controllers/getUNAMData').getUNAMData;
 
 var index = require('./routes/index');
 
+
+
 var app = express();
+
+
 
 app.use(function(req, res, next) {
     //CORS
@@ -35,6 +39,8 @@ cron.schedule("0 20,21,22 * * *", function() {
     }
 });
 
+
+
 //SSA File processing
 cron.schedule("5 20,21,22 * * *", function() {
     //validate the other file
@@ -58,6 +64,8 @@ cron.schedule("10 20,21,22,23 * * *", function() {
         getUNAMData(url.replace('${uri}',fileNames[i]),fileNames[i],numRecords[i]);
     }
 });
+
+
 
 
 var server = app.listen(8030, function () {

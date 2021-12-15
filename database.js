@@ -1,6 +1,8 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
+
+
 var fileStatus = new Schema({
     name: {
 		type: 'String',
