@@ -19,7 +19,7 @@
     "request": "*",
     "slack-node": "*",
     "extract-zip": "*",
-    "xlsx": "^0.13.0",
+    "xlsx": "^0.17.0",
     "adm-zip": "*"
   }
 }
